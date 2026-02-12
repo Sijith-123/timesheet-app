@@ -1,7 +1,7 @@
 {
   "name": "timesheet-app-backend",
   "version": "1.0.0",
-  "description": "Company Timesheet Management System Backend",
+  "description": "Timesheet Management System Backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

@@ -4,14 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 require('dotenv').config();
 
-const { initializeDatabase } = require('./schema');
-const authRoutes = require('./routes/auth');
-const timesheetRoutes = require('./routes/timesheets');
-const approvalRoutes = require('./routes/approvals');
-const adminRoutes = require('./routes/admin');
-
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(helmet());
@@ -23,16 +16,16 @@ app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check endpoint
+// Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date() });
+  res.json({ status: 'Server is running!', timestamp: new Date() });
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/timesheets', timesheetRoutes);
-app.use('/api/approvals', approvalRoutes);
-app.use('/api/admin', adminRoutes);
+// Routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/timesheets', require('./routes/timesheets'));
+app.use('/api/approvals', require('./routes/approvals'));
+app.use('/api/admin', require('./routes/admin'));
 
 // 404 handler
 app.use((req, res) => {
@@ -42,27 +35,10 @@ app.use((req, res) => {
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(err.status || 500).json({
-    error: err.message || 'Internal server error'
-  });
+  res.status(500).json({ error: 'Internal server error' });
 });
 
-// Initialize database and start server
-async function startServer() {
-  try {
-    console.log('Initializing database...');
-    await initializeDatabase();
-    
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-      console.log(`Frontend should point to http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
-}
-
-startServer();
-
-module.exports = app;
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
